@@ -1,0 +1,36 @@
+{
+  "name": "lyricsv-core",
+  "version": "1.0.0",
+  "description": "The core component of LyricsV",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qwqVictor/LyricsV-core.git"
+  },
+  "keywords": [
+    "lyrics"
+  ],
+  "author": "Victor Huang",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/qwqVictor/LyricsV-core/issues"
+  },
+  "homepage": "https://github.com/qwqVictor/LyricsV-core#readme",
+  "optionalDependencies": {
+    "@nodert-win10-20h1/windows.media": "^0.1.0",
+    "winax": "^3.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "^15.6.1",
+    "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "lrc-kit": "^1.1.1",
+    "sqlite3": "^5.0.2",
+    "typeorm": "^0.2.32"
+  }
+}
