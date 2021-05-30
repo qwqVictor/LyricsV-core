@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/qwqVictor/LyricsV-core#readme",
   "optionalDependencies": {
-    "@nodert-win10-20h1/windows.media": "^0.1.0",
     "winax": "^3.1.4"
   },
   "devDependencies": {
