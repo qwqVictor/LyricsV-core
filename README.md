@@ -22,7 +22,7 @@ We encapsulated IPC and MessagePort into "events" inside the `JSONEventEmitter`.
 | `lyricPreviewIndex` | `index: number, previewTrackUID: string` | LyricsWorker | [Parent] |   |
 | `updateConfig` | `config: Config` | [Parent] | [all] |   |
 | `disableLyrics` | `trackUID: string` | [Parent] | LyricsWorker |   |
-| `setLyrics` | `track: Track, lyricPassed: Lrc | string, offset?: number` | [Parent] | LyricsWorker |
+| `setLyrics` | `track: Track, lyricPassed: Lrc \| string, offset?: number` | [Parent] | LyricsWorker |
 | `setOffset` | `trackUID: string, offset: number` | [Parent] | LyricsWorker |   |
 | `searchLyrics` | `transactionId: number, track: Track` | [Parent] | LyricsWorker |   |
 | `lyricsSearchResult` | `transactionId: number, searchResults: LyricsSearchResult[]` | LyricsWorker | [Parent] |   |
@@ -49,6 +49,6 @@ LyricsV fetches lyrics from some music providers. Currently supported (most in C
 
 ## About
 
-LyricsV-core is licensed under [Apache-2.0 Public License](LICENSE).
+LyricsV-core is licensed under the [Apache License 2.0](LICENSE).
 
-**Code with ♥ by Victor Huang <i@qwq.ren>**
+**Code with ♥ by Victor Huang \<i@qwq.ren\>**
