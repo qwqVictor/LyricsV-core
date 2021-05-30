@@ -13,16 +13,16 @@ export class Track {
 
     duration: number
 
-    @Column()
+    @Column({ nullable: true })
     location: string
     
-    @Column()
+    @Column({ nullable: true })
     lrcFile?: string
 
-    @Column()
+    @Column({ nullable: true })
     lrcOffset?: number
 
-    @Column()
+    @Column({ nullable: true })
     disabledLyric?: boolean
 
     clone = (): Track => {
