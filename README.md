@@ -17,12 +17,12 @@ We encapsulated IPC and MessagePort into "events" inside the `JSONEventEmitter`.
 | `togglePlayPause` | `isPlaying: boolean` | PlayerInterface | [all] |   |
 | `timeUpdate` | `pos: number` | PlayerInterface | LyricsWorker | Real number in seconds, with milliseconds accuracy |
 | `playerQuit` |   | PlayerInterface | [Parent] |   |
-| `lyricChange` | `lyrics: Lyric[], offset: Number` | LyricsWorker | [Parent] |   |
+| `lyricChange` | `trackUID: string, lyrics: Lyric[], offset: Number` | LyricsWorker | [Parent] |   |
 | `lyricIndex` | `index: number` | LyricsWorker | [Parent] |   |
 | `lyricPreviewIndex` | `index: number, previewTrackUID: string` | LyricsWorker | [Parent] |   |
 | `updateConfig` | `config: Config` | [Parent] | [all] |   |
 | `disableLyrics` | `trackUID: string` | [Parent] | LyricsWorker |   |
-| `setLyrics` | `track: Track, lyricPassed: Lrc \| string, offset?: number` | [Parent] | LyricsWorker |
+| `setLyrics` | `track: Track, lyricPassed: Lrc | string, offset?: number` | [Parent] | LyricsWorker |
 | `setOffset` | `trackUID: string, offset: number` | [Parent] | LyricsWorker |   |
 | `searchLyrics` | `transactionId: number, track: Track` | [Parent] | LyricsWorker |   |
 | `lyricsSearchResult` | `transactionId: number, searchResults: LyricsSearchResult[]` | LyricsWorker | [Parent] |   |

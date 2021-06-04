@@ -25,7 +25,7 @@ class LyricsWorker {
     private config: Config
 
     onTrackChange = async (track: Track) => {
-        this.parentPort.emit("lyricChange", null, 0)
+        this.parentPort.emit("lyricChange", track.uid, null, 0)
         this.currentTrack = track
         if (track)
             this.currentLyric = await this.getLyrics(track)
@@ -34,7 +34,7 @@ class LyricsWorker {
         loggerVerbose("Lyrics getLyrics: got lyric", this.currentLyric)
         if (this.currentLyric) {
             this.lrcRunner.setLrc(this.currentLyric)
-            this.parentPort.emit("lyricChange", this.lrcRunner.getLyrics(), Number(this.currentLyric.info.offset) || 0)
+            this.parentPort.emit("lyricChange", track.uid, this.lrcRunner.getLyrics(), Number(this.currentLyric.info.offset) || 0)
             this.persistLyrics(track, this.currentLyric)
         } else {
             this.lrcRunner.setLrc(new Lrc())
