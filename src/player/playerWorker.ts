@@ -1,6 +1,6 @@
 import { isMainThread, MessagePort, workerData, parentPort } from "worker_threads"
 import { PlayerInterface } from "../type/PlayerInterface"
-import { JSONEventEmitter } from "../util/JSONEventEmitter"
+import { SerializedEventEmitter } from "../util/SerializedEventEmitter"
 import { iTunesPlayer } from "./itunes/itunes"
 
 const PLAYERS = {
@@ -8,18 +8,18 @@ const PLAYERS = {
 }
 class PlayerWorker {
     player: PlayerInterface
-    emitter: JSONEventEmitter        // emitter for player, emit to all port
-    parentPort: JSONEventEmitter
-    lyricsPort: JSONEventEmitter
+    emitter: SerializedEventEmitter        // emitter for player, emit to all port
+    parentPort: SerializedEventEmitter
+    lyricsPort: SerializedEventEmitter
 
     onSeek = (pos: number) => {
         this.player.seek(pos)
     }
     
     constructor(playerName: string, parentPort: MessagePort, lyricsPort: MessagePort, emitterBlacklist?: Object) {
-        this.parentPort = new JSONEventEmitter(parentPort)
-        this.lyricsPort = new JSONEventEmitter(lyricsPort)
-        this.emitter = new JSONEventEmitter(parentPort, [lyricsPort], emitterBlacklist)
+        this.parentPort = new SerializedEventEmitter(parentPort)
+        this.lyricsPort = new SerializedEventEmitter(lyricsPort)
+        this.emitter = new SerializedEventEmitter(parentPort, [lyricsPort], emitterBlacklist)
         if (PLAYERS.hasOwnProperty(playerName)) {
             this.player = new PLAYERS[playerName](this.emitter)
             if (this.player.currentTrack && this.player.isPlaying) {

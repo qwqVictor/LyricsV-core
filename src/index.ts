@@ -1,7 +1,7 @@
 import { Worker, MessageChannel, MessagePort, workerData, isMainThread, parentPort } from "worker_threads"
 import { worker, Worker as WorkerCluster, isWorker as isWorkerCluster } from "cluster"
 import { Config } from "./type/config"
-import { JSONEventEmitter } from "./util/JSONEventEmitter"
+import { SerializedEventEmitter } from "./util/SerializedEventEmitter"
 import * as path from "path"
 import * as process from "process"
 
@@ -9,10 +9,10 @@ class Core {
     workerCore: WorkerCluster | MessagePort
     playerWorker: Worker
     lyricsWorker: Worker
-    emitter: JSONEventEmitter
-    masterPort: JSONEventEmitter
-    playerPort: JSONEventEmitter
-    lyricsPort: JSONEventEmitter
+    emitter: SerializedEventEmitter
+    masterPort: SerializedEventEmitter
+    playerPort: SerializedEventEmitter
+    lyricsPort: SerializedEventEmitter
 
     onQuit = () => {
         process.exit()
@@ -40,9 +40,9 @@ class Core {
             transferList: [ port1 ]
         })
         
-        this.masterPort = new JSONEventEmitter(this.workerCore)
+        this.masterPort = new SerializedEventEmitter(this.workerCore)
         
-        this.emitter = new JSONEventEmitter(this.lyricsWorker, [this.playerWorker])
+        this.emitter = new SerializedEventEmitter(this.lyricsWorker, [this.playerWorker])
 
         /**
          * forward all message from workers to master
@@ -57,8 +57,8 @@ class Core {
             this.emitter.emit(event, ...args)
         })
 
-        this.playerPort = new JSONEventEmitter(this.playerWorker)
-        this.lyricsPort = new JSONEventEmitter(this.lyricsWorker)
+        this.playerPort = new SerializedEventEmitter(this.playerWorker)
+        this.lyricsPort = new SerializedEventEmitter(this.lyricsWorker)
 
         this.masterPort.on("quit", this.onQuit)
     }

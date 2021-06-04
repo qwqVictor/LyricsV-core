@@ -1,9 +1,8 @@
 import * as events from "events"
 import * as child from "child_process"
 import { logger } from "./logger"
-import { stringify } from "querystring"
 
-interface JSONEventEmitterInterface {
+interface SerializedEventEmitterInterface {
     postMessage?(value: any, transferList?): void
     send?(message: child.Serializable, sendHandle?: child.SendHandle, callback?: (error: Error | null) => void): boolean
     emit(event: string | symbol, ...args: any[]): boolean
@@ -11,36 +10,36 @@ interface JSONEventEmitterInterface {
     once(event: string | symbol, listener: (...args: any[]) => void): this
 }
 
-function unmarshalEventJSON(jsonMsg: string) : [string, any[]] {
+function unmarshalEventJSON(message: string) : [string, any[]] {
     let realEvent: string, realArgs: any[]
     try {
-        [realEvent, ...realArgs] = JSON.parse(jsonMsg)
+        [realEvent, ...realArgs] = JSON.parse(message)
     } catch (e) {
-        logger("JSONEventEmitter: Bad JSON " + e.stack)
+        logger("SerializedEventEmitter: Bad JSON " + e.stack)
         return [null, []]
     }
     return [realEvent, realArgs]
 } 
 
-function listenerWrapper(jsonMsg: string, event: string | symbol, listener: (...args: any[]) => void) {
-    let [realEvent, realArgs] = unmarshalEventJSON(jsonMsg)
+function listenerWrapper(message: string, event: string | symbol, listener: (...args: any[]) => void) {
+    let [realEvent, realArgs] = unmarshalEventJSON(message)
     if (realEvent == event)
         return listener(...realArgs)
     return
 }
 
-function listenerWrapperAll(jsonMsg: string, listener: (event: string | symbol, ...args: any[]) => void) {
-    let [realEvent, realArgs] = unmarshalEventJSON(jsonMsg)
+function listenerWrapperAll(message: string, listener: (event: string | symbol, ...args: any[]) => void) {
+    let [realEvent, realArgs] = unmarshalEventJSON(message)
     if (realEvent)
         return listener(realEvent, ...realArgs)
     return
 }
 
-export class JSONEventEmitter extends events.EventEmitter {
-    msgPort: JSONEventEmitterInterface
-    extraPorts: JSONEventEmitterInterface[]
+export class SerializedEventEmitter extends events.EventEmitter {
+    msgPort: SerializedEventEmitterInterface
+    extraPorts: SerializedEventEmitterInterface[]
     eventBlacklists: object
-    constructor(msgPort: JSONEventEmitterInterface, extraPorts: JSONEventEmitterInterface[] = [], eventBlacklists?: Object) {
+    constructor(msgPort: SerializedEventEmitterInterface, extraPorts: SerializedEventEmitterInterface[] = [], eventBlacklists?: Object) {
         super()
         this.msgPort = msgPort
         this.extraPorts = extraPorts
@@ -48,7 +47,7 @@ export class JSONEventEmitter extends events.EventEmitter {
     }
 
     public emit(event: string | symbol, ...args: any[]): boolean {
-        let blacklist: JSONEventEmitterInterface[] = []
+        let blacklist: SerializedEventEmitterInterface[] = []
         let payload: string = JSON.stringify([event, ...args])
         if (this.eventBlacklists && this.eventBlacklists.hasOwnProperty(event)) {
             blacklist = this.eventBlacklists[event]
@@ -80,29 +79,29 @@ export class JSONEventEmitter extends events.EventEmitter {
 
     public on(event: string | symbol, listener: (...args: any[]) => void): any {
         for (let port of this.extraPorts) {
-            port.on("message", (jsonMsg: string) => listenerWrapper(jsonMsg, event, listener))
+            port.on("message", (message: string) => listenerWrapper(message, event, listener))
         }
-        return this.msgPort.on("message", (jsonMsg: string) => listenerWrapper(jsonMsg, event, listener))
+        return this.msgPort.on("message", (message: string) => listenerWrapper(message, event, listener))
     }
     
     public once(event: string | symbol, listener: (...args: any[]) => void): any {
         for (let port of this.extraPorts) {
-            port.once("message", (jsonMsg: string) => listenerWrapper(jsonMsg, event, listener))
+            port.once("message", (message: string) => listenerWrapper(message, event, listener))
         }
-        return this.msgPort.once("message", (jsonMsg: string) => listenerWrapper(jsonMsg, event, listener))
+        return this.msgPort.once("message", (message: string) => listenerWrapper(message, event, listener))
     }
 
     public onAll(listener: (event: string | symbol, ...args: any[]) => void): any {
         for (let port of this.extraPorts) {
-            port.on("message", (jsonMsg: string) => listenerWrapperAll(jsonMsg, listener))
+            port.on("message", (message: string) => listenerWrapperAll(message, listener))
         }
-        return this.msgPort.on("message", (jsonMsg: string) => listenerWrapperAll(jsonMsg, listener))
+        return this.msgPort.on("message", (message: string) => listenerWrapperAll(message, listener))
     }
 
     public onceAll(listener: (event: string | symbol, ...args: any[]) => void): any {
         for (let port of this.extraPorts) {
-            port.once("message", (jsonMsg: string) => listenerWrapperAll(jsonMsg, listener))
+            port.once("message", (message: string) => listenerWrapperAll(message, listener))
         }
-        return this.msgPort.once("message", (jsonMsg: string) => listenerWrapperAll(jsonMsg, listener))
+        return this.msgPort.once("message", (message: string) => listenerWrapperAll(message, listener))
     }
 }

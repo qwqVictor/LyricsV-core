@@ -1,5 +1,5 @@
 import { isMainThread, MessagePort, workerData, parentPort } from "worker_threads"
-import { JSONEventEmitter } from "../util/JSONEventEmitter"
+import { SerializedEventEmitter } from "../util/SerializedEventEmitter"
 import { Track } from "../entity/Track"
 import { Lrc, Runner as LrcRunner } from "lrc-kit"
 import { searchLyrics, getLyric, PROVIDERS } from "./getLyrics"
@@ -13,8 +13,8 @@ import * as path from "path"
 const TRYLYRICS_THRESHOLD = 5
 
 class LyricsWorker {
-    private playerPort: JSONEventEmitter
-    private parentPort: JSONEventEmitter
+    private playerPort: SerializedEventEmitter
+    private parentPort: SerializedEventEmitter
     private currentTrack: Track
     private currentLyric: Lrc
     private lrcRunner: LrcRunner
@@ -149,8 +149,8 @@ class LyricsWorker {
         this.lrcRunner = new LrcRunner()
         this.lrcPreviewRunner = new LrcRunner()
 
-        this.playerPort = new JSONEventEmitter(playerPort)
-        this.parentPort = new JSONEventEmitter(parentPort)
+        this.playerPort = new SerializedEventEmitter(playerPort)
+        this.parentPort = new SerializedEventEmitter(parentPort)
 
         this.persistence = new Persistence(config.player, config.basePath)
 

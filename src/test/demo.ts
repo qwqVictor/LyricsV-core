@@ -4,7 +4,7 @@ import * as util from "util"
 import { defaultConfig } from "../type/config"
 import { Track } from "../entity/Track"
 import { Lyric } from "lrc-kit"
-import { JSONEventEmitter } from "../util/JSONEventEmitter"
+import { SerializedEventEmitter } from "../util/SerializedEventEmitter"
 
 const cursorToAsync = util.promisify(readline.cursorTo),
       clearLineAsync = util.promisify(readline.clearLine)
@@ -17,7 +17,7 @@ cluster.setupMaster({
 let core = cluster.fork()
 let currentLyric: Lyric[] = []
 
-let coreEmitter = new JSONEventEmitter(core)
+let coreEmitter = new SerializedEventEmitter(core)
 
 coreEmitter.on("trackChange", async (track: Track) => {
     await cursorToAsync(process.stdout, 0, 1)

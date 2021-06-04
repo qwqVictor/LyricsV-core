@@ -6,7 +6,7 @@ The core component of [LyricsV](https://lyricsv.app).
 
 LyricsV uses IPC to communicate with the core. And inside the core, worker threads of different components use MessagePort to communicate with each other.
 
-We encapsulated IPC and MessagePort into "events" inside the `JSONEventEmitter`. Now the event list is shown below.
+We encapsulated IPC and MessagePort into "events" inside the `SerializedEventEmitter`. Now the event list is shown below.
 
 ### Events
 
