@@ -10,6 +10,8 @@ import { logger, loggerVerbose } from "../util/logger"
 import { readFileAsync, unlinkAsync } from "../util/promisifiedFs"
 import * as path from "path"
 
+const TRYLYRICS_THRESHOLD = 5
+
 class LyricsWorker {
     private playerPort: JSONEventEmitter
     private parentPort: JSONEventEmitter
@@ -180,9 +182,11 @@ class LyricsWorker {
         if (!this.currentLyric) {
             let lyricSearchResults = await searchLyrics(track, this.usingProviders)
             try {
+                let count: number = 0
                 for (let result of lyricSearchResults) {
                     this.currentLyric = await getLyric(result, this.config.useTranslation, this.config.integrateTranslation)
-                    if (this.currentLyric)
+                    count++
+                    if (this.currentLyric || count > TRYLYRICS_THRESHOLD)
                         break
                 }
             } catch(e) {
