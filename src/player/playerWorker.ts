@@ -22,7 +22,7 @@ class PlayerWorker {
         this.emitter = new SerializedEventEmitter(parentPort, [lyricsPort], emitterBlacklist)
         if (PLAYERS.hasOwnProperty(playerName)) {
             this.player = new PLAYERS[playerName](this.emitter)
-            if (this.player.currentTrack && this.player.isPlaying) {
+            if (this.player.currentTrack) {
                 this.emitter.emit("trackChange", this.player.currentTrack)
             }
         }
