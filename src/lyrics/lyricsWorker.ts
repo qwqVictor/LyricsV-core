@@ -264,18 +264,22 @@ class LyricsWorker {
                 lrcFile = trackToUpdate.lrcFile
             else
                 lrcFile = await this.persistence.saveLRCFile(track, lyrics.toString({sort: true}))
-            if (lrcFile) {
+            if (lrcFile || remove) {
                 if (remove) {
                     trackToUpdate.lrcFile = ""
                     trackToUpdate.lrcOffset = 0
                     trackToUpdate.disabledLyric = true
-                    await unlinkAsync(lrcFile)
+                    try {
+                        await unlinkAsync(lrcFile)
+                    } catch (e) {
+                        logger("Lyrics persistLyrics: failed to unlink lrc file " + e.stack)
+                    }
                 } else {
                     trackToUpdate.lrcFile = lrcFile
                     trackToUpdate.lrcOffset = Number(lyrics.info.offset || 0)
                     trackToUpdate.disabledLyric = false
                 }
-                this.persistence.updateTrackData(track, ["lrcFile", trackToUpdate.lrcFile], ["lrcOffset", trackToUpdate.lrcOffset])
+                this.persistence.updateTrackData(track, ["lrcFile", trackToUpdate.lrcFile], ["lrcOffset", trackToUpdate.lrcOffset], ["disabledLyric", trackToUpdate.disabledLyric])
             }
         } catch(e) {
             logger("Lyrics persistLyrics: failed to persist lyrics " + e.stack)
