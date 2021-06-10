@@ -36,7 +36,7 @@ class LyricsWorker {
         loggerVerbose("Lyrics getLyrics: got lyric", this.currentLyric)
         if (this.currentLyric) {
             this.lrcRunner.setLrc(this.currentLyric)
-            this.parentPort.emit("lyricChange", track.uid, this.lrcRunner.getLyrics(), Number(this.currentLyric.info.offset) || 0)
+            this.parentPort.emit("lyricChange", track.uid, this.lrcRunner.getLyrics(), Number(this.currentLyric?.info.offset) || 0)
             this.persistLyrics(track, this.currentLyric)
         } else {
             this.lrcRunner.setLrc(new Lrc())
@@ -52,7 +52,7 @@ class LyricsWorker {
                 this.recentIndex = index
             }
         }
-        if (this.previewTrack && this.currentTrack && this.previewTrack.uid == this.currentTrack.uid) {
+        if (this.previewTrack && this.currentTrack && this.previewTrack?.uid == this.currentTrack?.uid) {
             this.lrcPreviewRunner.timeUpdate(pos)
             let index = this.lrcPreviewRunner.curIndex()
             if (this.recentPreviewIndex != index) {
@@ -63,7 +63,7 @@ class LyricsWorker {
     }
 
     onDisableLyrics = async (trackUID: string) => {
-        if (this.currentTrack && this.currentTrack.uid == trackUID) {
+        if (this.currentTrack?.uid == trackUID) {
             this.lrcRunner.setLrc(new Lrc())
             this.parentPort.emit("lyricChange", null, 0)
             await this.persistLyrics(this.currentTrack, null, true)
@@ -76,7 +76,7 @@ class LyricsWorker {
     }
 
     onGetLyrics = async (transactionId: number, searchResult: LyricsSearchResult, track: Track, preview?: boolean) => {
-        let result = await getLyric(searchResult, this.config.useTranslation, this.config.integrateTranslation)
+        let result = await getLyric(searchResult, this.config?.useTranslation, this.config?.integrateTranslation)
         this.parentPort.emit("lyricsGot", transactionId, result)
         if (result && preview) {
             this.previewTrack = track
@@ -111,7 +111,7 @@ class LyricsWorker {
     }
 
     onSetOffset = async (trackUID: string, offset: number) => {
-        if (this.currentTrack && this.currentTrack.uid == trackUID && !this.currentTrack.disabledLyric) {
+        if (this.currentTrack?.uid == trackUID && !this.currentTrack?.disabledLyric) {
             this.currentLyric.offset(offset)
             this.currentLyric.info.offset = String((Number(this.currentLyric.info.offset) || 0) + offset)
             await this.setLyrics(this.currentTrack, this.currentLyric)
@@ -123,8 +123,8 @@ class LyricsWorker {
             this.config[key] = config[key]
         }
         let usingProviders: LyricsProvider[] = []
-        if (this.config.providers) {
-            for (let providerName of config.providers) {
+        if (this.config?.providers) {
+            for (let providerName of config?.providers) {
                 let provider = PROVIDERS[providerName]
                 if (provider)
                     usingProviders.push(provider)
@@ -135,8 +135,8 @@ class LyricsWorker {
         }
         this.usingProviders = usingProviders
 
-        global['DEBUG'] = config.debug
-        global['VERBOSE'] = config.verbose
+        global['DEBUG'] = config?.debug
+        global['VERBOSE'] = config?.verbose
     }
 
     constructor(parentPort: MessagePort, playerPort: MessagePort, config: Config) {
@@ -168,7 +168,7 @@ class LyricsWorker {
     async setLyrics(track: Track, lyricResult: Lrc) : Promise<void> {
         if (lyricResult) {
             this.lrcRunner.setLrc(lyricResult)
-            this.parentPort.emit("lyricChange", this.lrcRunner.getLyrics(), String((Number(this.currentLyric.info.offset) || 0)))
+            this.parentPort.emit("lyricChange", this.lrcRunner.getLyrics(), String((Number(this.currentLyric?.info.offset) || 0)))
             await this.persistLyrics(track, lyricResult)
         } else {
             this.lrcRunner.setLrc(new Lrc())
@@ -184,7 +184,7 @@ class LyricsWorker {
             try {
                 let count: number = 0
                 for (let result of lyricSearchResults) {
-                    this.currentLyric = await getLyric(result, this.config.useTranslation, this.config.integrateTranslation)
+                    this.currentLyric = await getLyric(result, this.config?.useTranslation, this.config?.integrateTranslation)
                     count++
                     if (this.currentLyric || count > TRYLYRICS_THRESHOLD)
                         break
@@ -197,7 +197,7 @@ class LyricsWorker {
     }
 
     async disabledLyrics(track: Track) : Promise<boolean> {
-        if (this.persistence.noPersistence)
+        if (this.persistence?.noPersistence)
             return false
         try {
             return (await this.persistence.getTrack(track.uid) || { disabledLyric: false }).disabledLyric
@@ -209,7 +209,7 @@ class LyricsWorker {
 
     async getLocalLyrics(track: Track) : Promise<Lrc> {
         let lyric: Lrc
-        if (track.location && this.config.useLyricsBeside) {
+        if (track?.location && this.config?.useLyricsBeside) {
             let lrcFilename: string
             let base = path.basename(track.location), dir = path.dirname(track.location)
             let lastdot = base.lastIndexOf('.')
@@ -224,7 +224,7 @@ class LyricsWorker {
                 if (lrcRaw) {
                     lyric = Lrc.parse(lrcRaw)
                     if (lyric.info.offset) {
-                        lyric.offset(Number(lyric.info.offset) || 0)
+                        lyric.offset(Number(lyric?.info?.offset) || 0)
                         lyric.info._lvsource = 'beside'
                     }
                     return lyric
@@ -235,7 +235,7 @@ class LyricsWorker {
                 logger("Lyrics getLocalLyrics: failed to get lyrics beside the music file" + e.stack)
             }
         }
-        if (this.persistence.noPersistence)
+        if (this.persistence?.noPersistence)
             return null
         try {
             let lrcRaw = await this.persistence.getLRCFile(track)
@@ -254,7 +254,7 @@ class LyricsWorker {
     }
 
     async persistLyrics(track: Track, lyrics: Lrc, remove?: boolean) {
-        if (this.persistence.noPersistence || (lyrics && lyrics.info && lyrics.info._lvsource == "beside")) {
+        if (this.persistence?.noPersistence || (lyrics?.info._lvsource == "beside")) {
             return false
         }
         logger("Lyrics persistLyrics: start to persist for track " + track.name + " - " + track.artist)
@@ -276,7 +276,7 @@ class LyricsWorker {
                     }
                 } else {
                     trackToUpdate.lrcFile = lrcFile
-                    trackToUpdate.lrcOffset = Number(lyrics.info.offset || 0)
+                    trackToUpdate.lrcOffset = Number(lyrics?.info.offset || 0)
                     trackToUpdate.disabledLyric = false
                 }
                 this.persistence.updateTrackData(track, ["lrcFile", trackToUpdate.lrcFile], ["lrcOffset", trackToUpdate.lrcOffset], ["disabledLyric", trackToUpdate.disabledLyric])

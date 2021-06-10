@@ -19,14 +19,18 @@ export const PROVIDERS = {
 
 export async function searchLyrics(track: Track, providers: Array<LyricsProvider>): Promise<LyricsSearchResult[]> {
     let searchResults: LyricsSearchResult[] = []
-    for (let provider of providers) {
-        await provider.search(track.name, track.artist, track.album, track.duration).then((results: LyricsSearchResult[]) => {
-            if (results) {
-                for (let result of results) {
-                    searchResults.push(result)
+    try {
+        for (let provider of providers) {
+            await provider.search(track.name, track.artist, track.album, track.duration).then((results: LyricsSearchResult[]) => {
+                if (results) {
+                    for (let result of results) {
+                        searchResults.push(result)
+                    }
                 }
-            }
-        })
+            })
+        }
+    } catch(e) {
+        logger("Lyrics searchLyrics: unable to search lyrics " + e.stack)
     }
     return searchResults
 }
